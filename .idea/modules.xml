@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/LoginApplication/LoginApplication.iml" filepath="$PROJECT_DIR$/LoginApplication/LoginApplication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LoginApplicationProject.iml" filepath="$PROJECT_DIR$/LoginApplicationProject.iml" />
+    </modules>
+  </component>
+</project>
+
