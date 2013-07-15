@@ -300,6 +300,7 @@ public class MainActivity extends Activity {
         }
     }
 
+
     String requestHTTPSPage(String mUrl) {
         InputStream ins = null;
         String result = "";
