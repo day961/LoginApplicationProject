@@ -57,11 +57,12 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
-    private TextView mTextView01;
+    private TextView mTextView01;//登陆标签
     private LayoutInflater mInflater01;
     private View mView01;
     private EditText mEditText01,mEditText02;
     private String TAG = "HTTP_DEBUG";
+
     /*汉字的距离*/
     private int intShiftPadding = 14;
 
@@ -74,7 +75,7 @@ public class MainActivity extends Activity {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-        mTextView01 = (TextView)findViewById(R.id.myTextView1);
+        mTextView01 = (TextView)findViewById(R.id.myTextView1);//绑定登陆标签
 
         /*将文字lael放在屏幕右上方*/
 //        mTextView01.setLayoutParams(
@@ -87,25 +88,26 @@ public class MainActivity extends Activity {
 //                            )
 //        );
 
+        /*检查手机有无联网*/
         ConnectivityManager cwjManager=(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = cwjManager.getActiveNetworkInfo();
-        if (info != null && info.isAvailable()){
+        if (info != null && info.isAvailable()) {
             Toast.makeText(MainActivity.this,"有互联网连接",Toast.LENGTH_SHORT).show();
         }
-        else
-        {
+        else {
             Toast.makeText(MainActivity.this,"无互联网连接",Toast.LENGTH_SHORT).show();
         }
 
-        mTextView01.setOnClickListener(new TextView.OnClickListener(){
+        /*点击登陆标签时*/
+        mTextView01.setOnClickListener(new TextView.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showLoginForm();
+                showLoginForm();//调用显示账号密码输入框
             }
-        }
-        );
+        });
     }
 
+    /*显示账号密码输入框(->此处有可能导致界面进程卡死的风险！！！)*/
     private void showLoginForm()
     {
         try
@@ -121,154 +123,138 @@ public class MainActivity extends Activity {
 
             /*建立Login窗体对话框*/
             new AlertDialog.Builder(this)
+                    .setTitle("登陆")
                     .setView(mView01)
-                    .setPositiveButton("OK",
-                            new DialogInterface.OnClickListener() {
-                                /*当按下ok按钮进行登录网络操作*/
-                                public void onClick
-                                (DialogInterface dialog, int whichButton) {
-                            /*调用自定义processInternetLogin函数登陆*/
-                                    if (processInternetLogin(mEditText01.getText().toString(), mEditText02.getText().toString())) {
-                                        /*若登陆成功，则结束此Activity调到登陆成功页面*/
-                                        Intent i = new Intent();
-                                        i.setClass(MainActivity.this, SecondActivity.class);
-                                        MainActivity.this.startActivity(i);
-                                        finish();//结束当前Activity
-                                    } else {
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setPositiveButton("确定",new DialogInterface.OnClickListener(){
+                            /*当按下“确定“按钮进行登录网络操作*/
+                            public void onClick(DialogInterface dialog, int whichButton){
+                                /*调用自定义processInternetLogin函数登陆(此处有可能导致界面进程卡死的风险！！！)*/
+                                if (processInternetLogin(mEditText01.getText().toString()
+                                                        ,mEditText02.getText().toString())){
+                                    /*若登陆成功，则结束此Activity调到登陆成功页面*/
+                                    Intent i = new Intent();
+                                    i.setClass(MainActivity.this, SecondActivity.class);
+                                    MainActivity.this.startActivity(i);
+                                    finish();//结束当前Activity
+                                    }else{
                                         Toast.makeText(MainActivity.this, "账号或密码错误", Toast.LENGTH_SHORT).show();
                                     }
-
-
                                 }
                             }).show();
+        }catch(Exception e){
+            e.printStackTrace();
         }
-            catch(Exception e)
-            {
-                e.printStackTrace();
-            }
     }
 
     /*自定义登陆网站URL Login操作*/
     private boolean processInternetLogin(String strUID,String strUPW)
     {
-//      /*
-//      * Demo登陆
-//      * 账号:david
-//      * 密码:1234
-//      */
-        MyThread myThread = new MyThread(strUID,strUPW);
-        myThread.start();
-        while(myThread.isAlive()){
+          /*Demo登陆
+          * 账号:david
+          * 密码:1234
+          */
+        /*创建新进程用于连接网络进行登陆验证*/
+        checkingThread checkingThread = new checkingThread(strUID,strUPW);
+        checkingThread.start();
+
+        /*阻塞主线程等待登陆验证结束（严重的界面进程卡死风险！！！！）*/
+        while(checkingThread.isAlive()) {
             try{
                 Thread.sleep(100);
-            }catch(InterruptedException e){
+            }catch(InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("在主函数 Thread NO." + Thread.currentThread().getId() + " 连接状态 " + myThread.status);
-        return myThread.status;
+        System.out.println("在主函数 Thread NO." + Thread.currentThread().getId() + ".连接状态:" + checkingThread.status);
+        return checkingThread.status;
     }
 
-    class MyThread extends Thread{
+    class checkingThread extends Thread {
         private  String strUID,strUPW;
 
-        public MyThread(String strUID,String strUPW){
+        public checkingThread(String strUID,String strUPW){
             this.strUID = strUID;
             this.strUPW = strUPW;
         }
-        public boolean status = false;
+        private boolean status = false;//储存登陆状态
         @Override
         public void run() {
-            String uriAPI = "https://day961.uqute.com/API/Login/index.php";
+            String uriAPI = "https://day961.uqute.com/API/Login/index.php";//登陆验证网页
             String strRet = "";
 
             try
             {
                 Looper.prepare();
-                System.out.println("进入判断函数   Thread NO." + Thread.currentThread().getId());
-
-
+                System.out.println("进入判断函数 Thread NO." + Thread.currentThread().getId());
 
                 DefaultHttpClient httpclient = (DefaultHttpClient)getNewHttpClient();
                 //DefaultHttpClient httpclient = new DefaultHttpClient();
-                
                 HttpResponse response;
                 HttpPost httpPost = new HttpPost(uriAPI);
-                List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-                nvps.add(new BasicNameValuePair("uid",strUID));
-                nvps.add(new BasicNameValuePair("upw",strUPW));
+                
+                List<NameValuePair> nvpl = new ArrayList<NameValuePair>();
+                nvpl.add(new BasicNameValuePair("uid", strUID));
+                nvpl.add(new BasicNameValuePair("upw", strUPW));
 
-                HttpEntity httpentity = new UrlEncodedFormEntity(nvps, HTTP.UTF_8);
+                HttpEntity httpentity = new UrlEncodedFormEntity(nvpl, HTTP.UTF_8);
                 httpPost.setEntity(httpentity);
 
-                response = httpclient.execute(httpPost);
+                response = httpclient.execute(httpPost);//执行登陆信息传递，将结果返回
 
-                /*HttpStatus.SC_OK表示连接成功*/
+                /*判断连接是否成功，HttpStatus.SC_OK表示连接成功*/
                 if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
                 {
-                    System.out.println("请求成功   Thread NO." + Thread.currentThread().getId());
+                    System.out.println("请求成功 Thread NO." + Thread.currentThread().getId());
                 }else{
-                    System.out.println("请求错误   Thread NO." + Thread.currentThread().getId());
+                    System.out.println("请求错误 Thread NO." + Thread.currentThread().getId());
                 }
 
                 HttpEntity entity = response.getEntity();
 
                 Log.d(TAG,"HTTP POST getStatusLine:" + response.getStatusLine());
-
                 strRet = EntityUtils.toString(entity);
-                System.out.println("返回内容  " + strRet);
                 Log.i(TAG,strRet);
-                strRet = strRet.trim().toLowerCase();//trim清除空格
+                strRet = strRet.trim().toLowerCase();//strRet存放验证结果(trim清除空格,toLowerCase变小写)
 
                 /*取得Cookie内容*/
                 List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 
-                if(entity != null)
-                {
+                if(entity != null) {
                     entity.consumeContent();
                 }
 
                 Log.d(TAG,"HTTP POST Initialize of cookies.");
                 cookies = httpclient.getCookieStore().getCookies();
-                if (cookies.isEmpty())
-                {
+                if (cookies.isEmpty()) {
                     Log.d(TAG,"HTTP POST Cookie not found.");
                     Log.i(TAG,entity.toString());
-                }
-                else
-                {
-                    for (int i = 0;i < cookies.size();i++)
-                    {
+                } else {
+                    for (int i = 0;i < cookies.size();i++) {
                         Log.d(TAG,"HTTP POST Found Cookie:" + cookies.get(i).toString());
                     }
                 }
-                if (strRet.equals("y"))
-                {
+                if (strRet.equals("y")) {
                     Log.i("TEST","YES");
                     status = true;
-                    System.out.println("账号正确   Thread NO." + Thread.currentThread().getId());
-                }
-                else
-                {
+                    System.out.println("验证通过   Thread NO." + Thread.currentThread().getId());
+                } else {
                     Log.i("TEST","NO");
                     status = false;
-                    System.out.println("账号错误   Thread NO." + Thread.currentThread().getId());
+                    System.out.println("验证错误   Thread NO." + Thread.currentThread().getId());
                 }
                 stop();//强制线程退出
                 Looper.loop();
                 //super.run();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("进入异常   Thread NO." + Thread.currentThread().getId() + e.getMessage());
-                //return false;
             }
-
-            //super.run();
+            super.run();
         }
     }
 
+    /*菜单*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -276,6 +262,7 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    /*信任所有证书以通过服务器的https*/
     public static HttpClient getNewHttpClient()  {
         try {
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
