@@ -287,7 +287,7 @@ public class MainActivity extends Activity {
         }
     }
 
-
+    /*使用证书验证https服务器（暂时用不到）*/
     String requestHTTPSPage(String mUrl) {
         InputStream ins = null;
         String result = "";
