@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
-import android.widget.AbsoluteLayout;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,18 +73,7 @@ public class MainActivity extends Activity {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-        mTextView01 = (TextView)findViewById(R.id.myTextView1);//绑定登陆标签
-
-        /*将文字lael放在屏幕右上方*/
-//        mTextView01.setLayoutParams(
-//            new AbsoluteLayout.LayoutParams(
-//                    intShiftPadding*mTextView01.getText().toString().length(),18,
-//                    (
-//                            dm.widthPixels-(
-//                                        intShiftPadding*mTextView01.getText().toString().length()
-//                            ))-10,0
-//                            )
-//        );
+        mTextView01 = (TextView)findViewById(R.id.myTextView1);  //绑定登陆标签
 
         /*检查手机有无联网*/
         ConnectivityManager cwjManager=(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);

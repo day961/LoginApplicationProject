@@ -3,7 +3,7 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="D:\android\LoginApplicationProject\build.gradle" />
+        <option name="externalProjectPath" value="D:\android" />
         <option name="useAutoImport" value="true" />
       </GradleProjectSettings>
     </option>

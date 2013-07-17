@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/LoginApplication/LoginApplication.iml" filepath="$PROJECT_DIR$/LoginApplication/LoginApplication.iml" />
-      <module fileurl="file://$PROJECT_DIR$/LoginApplicationProject.iml" filepath="$PROJECT_DIR$/LoginApplicationProject.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LoginApplication/build/source/buildConfig/buildConfig.iml" filepath="$PROJECT_DIR$/LoginApplication/build/source/buildConfig/buildConfig.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LoginApplication/build/manifests/debug/debug.iml" filepath="$PROJECT_DIR$/LoginApplication/build/manifests/debug/debug.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LoginApplication/src/main/main.iml" filepath="$PROJECT_DIR$/LoginApplication/src/main/main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LoginApplication/build/source/r/r.iml" filepath="$PROJECT_DIR$/LoginApplication/build/source/r/r.iml" />
     </modules>
   </component>
 </project>
